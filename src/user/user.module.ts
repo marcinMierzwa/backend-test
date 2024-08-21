@@ -1,15 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { UserService } from '../user/user.service';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { RefreshToken, RefreshTokenSchema } from 'src/schemas/refresh-token.schema';
-import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [
-    UserModule,
+  imports: [ 
     MongooseModule.forFeature([
       {
         name: User.name,
@@ -20,10 +17,10 @@ import { UserModule } from 'src/user/user.module';
         schema: RefreshTokenSchema
       },
     ])
-
-
   ],
-  controllers: [AuthController],
-  providers: [AuthService, UserService]
+
+  controllers: [UserController],
+  providers: [UserService],
+  exports: [UserService]
 })
-export class AuthModule {}
+export class UserModule {}
