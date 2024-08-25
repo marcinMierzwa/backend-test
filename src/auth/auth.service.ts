@@ -14,6 +14,7 @@ export class AuthService {
 
   // #register
   async register(registerRequestBody: RegisterDto) {
+    
     const { email, password, confirmPassword } = registerRequestBody;
 
     if (password !== confirmPassword) {
@@ -26,8 +27,8 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.userService.saveUser({ email, hashedPassword });
       return {
-        message: `successful registration`,
-        email,
+        message: `Thank you! ${email}. It's great that you joined us, now check your email to fully activate your account and login`,
+        email: user.email,
         id: user._id,
       }
     }

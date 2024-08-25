@@ -15,10 +15,11 @@ export class AuthController {
   @Post('register')
   async register(
     @Body() registerRequestBody: RegisterDto,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<Partial<User>> {
     res.status(200);
     return await this.authService.register(registerRequestBody);
+    
   }
 
   // #login
