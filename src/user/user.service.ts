@@ -24,7 +24,7 @@ export class UserService {
       email: email,
     });
     if (emailInUse) {
-      throw new BadRequestException('email is already in use');
+      throw new BadRequestException('Sorry! email is already in use');
     } else {
       return true;
     }
