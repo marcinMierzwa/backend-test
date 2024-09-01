@@ -5,11 +5,13 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/dtos/login-dto';
 import { JwtService } from '@nestjs/jwt';
 import { ObjectId } from 'mongoose';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService,
-    private jwt: JwtService
+    private jwt: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   // #register
@@ -26,8 +28,11 @@ export class AuthService {
     if (emailInUse) {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.userService.saveUser({ email, hashedPassword });
+      
+      this.mailService.confirmEmailAdress(user.email, user._id);
+
       return {
-        message: `Thank you! ${email}. It's great that you joined us, now check your email to fully activate your account and login`,
+        message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
         email: user.email,
         id: user._id,
       }

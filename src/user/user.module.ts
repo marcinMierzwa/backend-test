@@ -16,7 +16,7 @@ import { RefreshToken, RefreshTokenSchema } from 'src/schemas/refresh-token.sche
         name: RefreshToken.name,
         schema: RefreshTokenSchema
       },
-    ])
+    ]),
   ],
 
   controllers: [UserController],

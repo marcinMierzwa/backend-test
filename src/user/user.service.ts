@@ -31,10 +31,11 @@ export class UserService {
   }
 
   // #save user in data base
-  async saveUser({ email, hashedPassword }) {
+  async saveUser({ email, hashedPassword}) {
     return await this.userModel.create({
       email,
       password: hashedPassword,
+      isEmailAdressConfirmed: false,
     });
   }
 
@@ -68,5 +69,15 @@ export class UserService {
       email: user.email
     }
   }
+
+  // #get user from data base to confirm email
+  async getUserToConfirmEmail(email:string) {
+    return await this.userModel.findOne({email});
+  }
+
+  async updateConfimationMailAdress(_id) {
+   return await this.userModel.findByIdAndUpdate({_id}, {isEmailAdressConfirmed: true});
+  }
+
 
 }
