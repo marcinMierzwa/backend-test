@@ -66,7 +66,8 @@ export class UserService {
     const user = await this.userModel.findOne({_id: userId});
     return {
       id: user._id,
-      email: user.email
+      email: user.email,
+      isEmailAdressConfirmed: user.isEmailAdressConfirmed
     }
   }
 

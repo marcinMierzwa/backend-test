@@ -62,9 +62,15 @@ export class MailService {
 
   async updateConfimationEmailAdress(token: string) {
     const payload = await this.jwtService.verifyAsync(token);
-    const user = await this.userService.updateConfimationMailAdress(payload._id);
-    const {password, ...rest} = user;
-    console.log(rest);
+    await this.userService.updateConfimationMailAdress(payload._id);
+    // return {
+    //     _id: user._id,
+    //     email: user.email,
+    //     isEmailAdressConfirmed: user.isEmailAdressConfirmed,
+    //     message: 'Thank you for confirmation your email adrress, now you can get access to your account and login'
+    // }
+    
   }
+
 
 }
