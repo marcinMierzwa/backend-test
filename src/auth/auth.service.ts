@@ -43,12 +43,13 @@ export class AuthService {
 // #login
 async Login(loginRequestBody: LoginDto) {
     const {email, password} = loginRequestBody;
-    const userId = await this.validateCredentials(email, password);
-    const tokens = await this.generateTokens(userId);
+    const user = await this.validateCredentials(email, password);
+    const tokens = await this.generateTokens(user.id);
         return {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         userId: tokens.userId,
+        isEmailAdressConfirmed: user.isEmailAdressConfirmed,
     }
 
     
@@ -62,12 +63,15 @@ async validateCredentials(email, password) {
     if (!passwordMatch) {
       throw new BadRequestException('invalid credentials');
     }
-    return user.id;
+    if(user.isEmailAdressConfirmed === false) {
+      this.mailService.confirmEmailAdress(user.email, user.id);
+      throw new BadRequestException('Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email to log in', {cause: new Error(), description: 'email is not confirmed'});
+    }
+
+    return user;
+    
   }
     
-    
-     
-
 
 // #generate tokens
 async generateTokens(userId) {

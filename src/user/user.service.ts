@@ -53,6 +53,7 @@ export class UserService {
       email: user.email,
       password: user.password,
       id: user._id,
+      isEmailAdressConfirmed: user.isEmailAdressConfirmed
     };
   }
 

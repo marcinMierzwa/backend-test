@@ -15,11 +15,5 @@ export class UserController {
     return await this.userService.getUser(req.userId);
     }
 
-    // #check if email is confirmed
-    // @Get()
-    // async isEmailConfirm(): Promise<EmailConfirmationResponse> {
-    //     const user = a
-    // }
-
     
 }

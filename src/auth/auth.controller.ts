@@ -29,20 +29,20 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponse> {
     res.status(200);
-    const tokens = await this.authService.Login(loginRequestBody);
-    const accessToken = tokens.accessToken;
-    const refreshToken = tokens.refreshToken;
-    const userId = tokens.userId;
+    const user = await this.authService.Login(loginRequestBody);
+    
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('refreshToken', user.refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     }); // 1 week
 
     return {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      userId: userId
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+      userId: user.userId,
+      isEmailAdressConfirmed: user.isEmailAdressConfirmed,
+      message: 'Successful login',
     };
   }
   // #logout

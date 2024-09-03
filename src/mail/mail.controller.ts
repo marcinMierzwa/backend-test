@@ -17,7 +17,7 @@ async reciveConfirmationEmail (
   @Param('token') token: string,
   @Res() res
 ) {
-  res.status(302).redirect(`http://localhost:4200/alert-login`)
+  res.status(302).redirect(`http://localhost:4200/login`)
  await this.mailService.updateConfimationEmailAdress(token);
 }
 
