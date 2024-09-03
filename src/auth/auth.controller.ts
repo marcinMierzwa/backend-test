@@ -39,9 +39,9 @@ export class AuthController {
 
     return {
       accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      userId: user.userId,
-      isEmailAdressConfirmed: user.isEmailAdressConfirmed,
+      // refreshToken: user.refreshToken,
+      // userId: user.userId,
+      // isEmailAdressConfirmed: user.isEmailAdressConfirmed,
       message: 'Successful login',
     };
   }

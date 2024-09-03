@@ -58,7 +58,11 @@ async Login(loginRequestBody: LoginDto) {
 
 // #validate login credentials
 async validateCredentials(email, password) {
+
     const user = await this.userService.findValidatedUser(email);
+    if (!user) {
+      throw new BadRequestException('invalid credentials');
+    }
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       throw new BadRequestException('invalid credentials');

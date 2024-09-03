@@ -24,7 +24,7 @@ export class UserService {
       email: email,
     });
     if (emailInUse) {
-      throw new BadRequestException('Sorry! email is already in use');
+      throw new UnauthorizedException('Sorry! email is already in use');
     } else {
       return true;
     }
@@ -44,17 +44,14 @@ export class UserService {
   // #find validated user in data base with email and validate email
 
   async findValidatedUser(email) {
-    const user = await this.userModel.findOne({ email });
-    if (!user) {
-      throw new UnauthorizedException('invalid credentials');
-    }
+    return await this.userModel.findOne({ email });
     
-    return {
-      email: user.email,
-      password: user.password,
-      id: user._id,
-      isEmailAdressConfirmed: user.isEmailAdressConfirmed
-    };
+    // return {
+    //   email: user.email,
+    //   password: user.password,
+    //   id: user._id,
+    //   isEmailAdressConfirmed: user.isEmailAdressConfirmed
+    // };
   }
 
   // #store refreshToken in data base
