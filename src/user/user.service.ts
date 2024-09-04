@@ -20,14 +20,9 @@ export class UserService {
 
   // #check if email is already saved in data base
   async isEmailInUse(email: string) {
-    const emailInUse = await this.userModel.findOne({
+    return await this.userModel.findOne({
       email: email,
     });
-    if (emailInUse) {
-      throw new UnauthorizedException('Sorry! email is already in use');
-    } else {
-      return true;
-    }
   }
 
   // #save user in data base

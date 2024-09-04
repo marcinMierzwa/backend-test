@@ -26,6 +26,8 @@ export class AuthService {
     const emailInUse = await this.userService.isEmailInUse(email);
 
     if (emailInUse) {
+      throw new BadRequestException('Sorry! email is already in use');
+    }
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.userService.saveUser({ email, hashedPassword });
       
@@ -37,7 +39,7 @@ export class AuthService {
         id: user._id,
       }
     }
-  }
+  
 
 
 // #login
