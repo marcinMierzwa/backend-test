@@ -20,13 +20,13 @@ export class AuthService {
     const { email, password, confirmPassword } = registerRequestBody;
 
     if (password !== confirmPassword) {
-      throw new BadRequestException('password is not the same');
+      throw new BadRequestException('Fields password and confirm password must be the same');
     }
 
     const emailInUse = await this.userService.isEmailInUse(email);
 
     if (emailInUse) {
-      throw new BadRequestException('Sorry! email is already in use');
+      throw new BadRequestException('Sorry! Email adress is already in use, try to choose antoher one');
     }
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.userService.saveUser({ email, hashedPassword });
