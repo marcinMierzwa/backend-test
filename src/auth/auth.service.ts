@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable} from '@nestjs/common';
 import { RegisterDto } from 'src/dtos/register-dto';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
@@ -71,7 +71,7 @@ async validateCredentials(email, password) {
     }
     if(user.isEmailAdressConfirmed === false) {
       this.mailService.confirmEmailAdress(user.email, user.id);
-      throw new BadRequestException('Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email to log in', {cause: new Error(), description: 'email is not confirmed'});
+      throw new BadRequestException('Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email to log in');
     }
 
     return user;

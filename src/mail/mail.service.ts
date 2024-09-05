@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
@@ -18,7 +18,7 @@ export class MailService {
     const { email, _id, isEmailAdressConfirmed } = user;
     const emailConfirmationToken = await this.jwtService.signAsync(
       { email, _id },
-      { expiresIn: '60 days' },
+      { expiresIn:60 },
     );
     const confirmationEmailUrl = `http://localhost:3000/mail/${emailConfirmationToken}`;
 
@@ -62,14 +62,14 @@ export class MailService {
 
   async updateConfimationEmailAdress(token: string) {
     const payload = await this.jwtService.verifyAsync(token);
-    await this.userService.updateConfimationMailAdress(payload._id);
+      await this.userService.updateConfimationMailAdress(payload._id);
     return {
-        _id: payload._id,
-        email: payload.email,
-        isEmailAdressConfirmed: payload.isEmailAdressConfirmed,
-        message: 'Thank you for confirmation your email adrress, now you can get access to your account and login'
-    }
-    
+      _id: payload._id,
+      email: payload.email,
+      isEmailAdressConfirmed: payload.isEmailAdressConfirmed,
+      message: 'Thank you for confirmation your email adrress, now you can get access to your account and login'
+  }
+
   }
 
 
