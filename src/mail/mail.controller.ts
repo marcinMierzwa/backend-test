@@ -26,7 +26,10 @@ async reciveConfirmationEmail (
  await this.mailService.updateConfimationEmailAdress(token);
 }
 
-
+@Get()
+test(){
+  return {message: 'hello'}
+}
 
 
 }
