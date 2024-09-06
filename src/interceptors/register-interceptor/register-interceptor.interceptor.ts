@@ -10,16 +10,15 @@ export class RegisterInterceptorInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
 // Pobranie parametrów z URL (parametry routingu)
-const tokenConfirmationEmail = request.params.token;
+const emailConfirmationToken = request.query.token;
 
-if(!tokenConfirmationEmail) {
+if(!emailConfirmationToken) {
   throw new UnauthorizedException('Invalid token');
 }
 try {
-  
-  const payload = this.jwtService.verify(tokenConfirmationEmail);
-  
+  const payload = this.jwtService.verify(emailConfirmationToken);
   request.userId = payload._id;
+  
   
 }
 catch(err) {

@@ -31,7 +31,7 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.userService.saveUser({ email, hashedPassword });
       
-      this.mailService.confirmEmailAdress(user.email, user._id);
+      this.mailService.confirmEmailAdress(user.email);
 
       return {
         message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
@@ -70,7 +70,7 @@ async validateCredentials(email, password) {
       throw new BadRequestException('invalid credentials');
     }
     if(user.isEmailAdressConfirmed === false) {
-      this.mailService.confirmEmailAdress(user.email, user.id);
+      this.mailService.confirmEmailAdress(user.email);
       throw new BadRequestException('Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email to log in');
     }
 

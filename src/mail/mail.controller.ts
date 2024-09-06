@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Redirect, Req, Res, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Query, Redirect, Req, Res, UseInterceptors } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -13,23 +13,33 @@ export class MailController {
   ) {}
 
 
-@Get(':token')
+@Get()
 @UseInterceptors(RegisterInterceptorInterceptor)
 async reciveConfirmationEmail (
-  @Param('token') token: string,
-  @Res() res,
+  @Query('token') token: string,
+  @Res({passthrough:true}) res,
   @Req() req,
 ) {
-  res.status(302).redirect(`http://localhost:4200/login`)
-  console.log(req.error);
+  console.log(req.userId);
   
- await this.mailService.updateConfimationEmailAdress(token);
+  res.status(302).redirect(`http://localhost:4200/home`)
+    res.cookie('emailToken', req.userId, {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  }); // 1 week
+
+  
+//  await this.userService.updateConfimationMailAdress(req.userId);
 }
 
-@Get()
-test(){
-  return {message: 'hello'}
-}
+// @Get('test')
+// @UseInterceptors(RegisterInterceptorInterceptor)
+// test(
+//   @Req() req,
+  
+// ){
+//   console.log(req.userId);
+// }
 
 
 }

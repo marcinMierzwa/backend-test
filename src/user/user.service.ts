@@ -70,7 +70,14 @@ export class UserService {
   }
 
   async updateConfimationMailAdress(_id) {
-   return await this.userModel.findByIdAndUpdate({_id}, {isEmailAdressConfirmed: true});
+   const user = await this.userModel.findByIdAndUpdate({_id}, {isEmailAdressConfirmed: true});
+   return {
+    _id: user._id,
+    email: user.email,
+    isEmailAdressConfirmed: user.isEmailAdressConfirmed,
+    message: 'Thank you for confirmation your email adrress, now you can get access to your account and login'
+}
+
   }
 
 
