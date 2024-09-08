@@ -17,7 +17,7 @@ export class MailService {
     const user = await this.userService.getUserToConfirmEmail(user_email);
     const { email, _id, isEmailAdressConfirmed } = user;
     const payload = {email, _id};
-    const emailConfirmationToken = this.jwtService.sign(payload, {expiresIn: '1w'});
+    const emailConfirmationToken = this.jwtService.sign(payload, {expiresIn: 30});
     
     const confirmationEmailUrl = `http://localhost:3000/mail/?token=${emailConfirmationToken}`;
 

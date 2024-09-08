@@ -70,8 +70,12 @@ async validateCredentials(email, password) {
       throw new BadRequestException('invalid credentials');
     }
     if(user.isEmailAdressConfirmed === false) {
-      this.mailService.confirmEmailAdress(user.email);
-      throw new BadRequestException('Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email to log in');
+      // this.mailService.confirmEmailAdress(user.email);
+      throw new BadRequestException({
+        "statusCode": 401,
+        "error": "Bad Request",
+        "message": ["Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email"]
+      });
     }
 
     return user;
