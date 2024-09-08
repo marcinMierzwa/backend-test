@@ -9,6 +9,7 @@ export class RegisterInterceptorInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse();
 // Pobranie parametrów z URL (parametry routingu)
 const emailConfirmationToken = request.query.token;
 
@@ -16,6 +17,7 @@ if(!emailConfirmationToken) {
   throw new UnauthorizedException('Invalid token');
 }
 try {
+  
   const payload = this.jwtService.verify(emailConfirmationToken);
   request.userId = payload._id;
   

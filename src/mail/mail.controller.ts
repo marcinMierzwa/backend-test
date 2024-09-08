@@ -3,6 +3,7 @@ import { MailService } from './mail.service';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterInterceptorInterceptor } from 'src/interceptors/register-interceptor/register-interceptor.interceptor';
+import { PassThrough } from 'stream';
 
 @Controller('mail')
 export class MailController {
@@ -17,29 +18,15 @@ export class MailController {
 @UseInterceptors(RegisterInterceptorInterceptor)
 async reciveConfirmationEmail (
   @Query('token') token: string,
-  @Res({passthrough:true}) res,
+  @Res() res,
   @Req() req,
-) {
-  console.log(req.userId);
+) 
+{
+  res.status(302).redirect(`http://localhost:4200/login`)
   
-  res.status(302).redirect(`http://localhost:4200/home`)
-    res.cookie('emailToken', req.userId, {
-    httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  }); // 1 week
-
-  
-//  await this.userService.updateConfimationMailAdress(req.userId);
+ await this.userService.updateConfimationMailAdress(req.userId);
 }
 
-// @Get('test')
-// @UseInterceptors(RegisterInterceptorInterceptor)
-// test(
-//   @Req() req,
-  
-// ){
-//   console.log(req.userId);
-// }
 
 
 }
