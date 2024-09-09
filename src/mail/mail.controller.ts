@@ -16,28 +16,26 @@ export class MailController {
 
 
 @Get()
-@UseInterceptors(RegisterInterceptorInterceptor)
+// @UseInterceptors(RegisterInterceptorInterceptor)
 async reciveConfirmationEmail (
   @Query('token') token: string,
-  @Res() res,
-  @Req() req,
 ) 
 {
-  res.status(302).redirect(`http://localhost:4200/login`)
- await this.userService.updateConfimationMailAdress(req.userId);
+  const emailConfirmationToken = token;
+  const payload = await this.jwtService.verifyAsync(token);
+  console.log(payload);
+  
 }
 
 @Post('resend-confirmation-email')
 async resendConfirmationEmail(
   @Body()body: ResendConfirmationEmailDto
 ) {
-  const {email} = body;
-  await this.mailService.confirmEmailAdress(email);
-  return {
-    message: 'email resent succesfull'
-  }
+const {email} = body;
+return await this.mailService.confirmEmailAdress(email);
   
 }
+
 
 
 

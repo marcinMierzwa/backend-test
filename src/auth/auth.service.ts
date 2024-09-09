@@ -31,12 +31,13 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.userService.saveUser({ email, hashedPassword });
       
-      this.mailService.confirmEmailAdress(user.email);
+      const emailConfirmationToken = await this.mailService.confirmEmailAdress(user.email);
 
       return {
         message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
         email: user.email,
         id: user._id,
+        emailConfirmationToken: emailConfirmationToken
       }
     }
   

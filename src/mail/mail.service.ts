@@ -13,11 +13,11 @@ export class MailService {
     private configService: ConfigService,
   ) {}
 
-  async confirmEmailAdress(user_email: string) {
+   async confirmEmailAdress(user_email: string) {
     const user = await this.userService.getUserToConfirmEmail(user_email);
     const { email, _id, isEmailAdressConfirmed } = user;
     const payload = {email, _id};
-    const emailConfirmationToken = this.jwtService.sign(payload, {expiresIn: 20});
+    const emailConfirmationToken = this.jwtService.sign(payload, {expiresIn: '1w'});
     
     const confirmationEmailUrl = `http://localhost:3000/mail/?token=${emailConfirmationToken}`;
 
@@ -39,13 +39,15 @@ export class MailService {
       };
 
       try {
-        const result = await transport.sendMail(options);
-        return result;
+        await transport.sendMail(options);
       } catch (error) {
-        console.log(error);
+        Logger.error(error.message);
+        throw new UnauthorizedException('Confirmation email not send', error.message);
       }
     }
+
   }
+
   mailTransport() {
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
