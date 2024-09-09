@@ -2,11 +2,14 @@ import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor, Una
 import { JwtService } from '@nestjs/jwt';
 import { error } from 'console';
 import { catchError, Observable } from 'rxjs';
+import { MailService } from 'src/mail/mail.service';
 
 
 @Injectable()
 export class RegisterInterceptorInterceptor implements NestInterceptor {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
@@ -17,8 +20,8 @@ const emailConfirmationToken = request.query.token;
 if(!emailConfirmationToken) {
   throw new UnauthorizedException('Invalid token');
 }
+
 try {
-  
   const payload = this.jwtService.verify(emailConfirmationToken);
   request.userId = payload._id;
   
@@ -27,6 +30,7 @@ try {
 catch(err) {
   Logger.error(err.message);
   throw new UnauthorizedException('Invalid token');
+  
 }
 
     return next.handle();
