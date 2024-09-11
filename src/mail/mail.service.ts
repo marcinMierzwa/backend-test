@@ -13,13 +13,15 @@ export class MailService {
     private configService: ConfigService,
   ) {}
 
-   async confirmEmailAdress(user_email: string) {
+  async confirmEmailAdress(user_email: string) {
     const user = await this.userService.getUserToConfirmEmail(user_email);
     const { email, _id, isEmailAdressConfirmed } = user;
-    const payload = {email, _id};
-    const emailConfirmationToken = this.jwtService.sign(payload, {expiresIn: '1w'});
-    
-    const confirmationEmailUrl = `http://localhost:3000/mail/?token=${emailConfirmationToken}`;
+    const payload = { email, _id };
+    const emailConfirmationToken = this.jwtService.sign(payload, {
+      expiresIn: '30 days',
+    });
+
+    const confirmationEmailUrl = `http://localhost:3000/mail/${emailConfirmationToken}`;
 
     if (user && isEmailAdressConfirmed === false) {
       const transport = this.mailTransport();
@@ -40,12 +42,23 @@ export class MailService {
 
       try {
         await transport.sendMail(options);
+        this.userService.storeEmailConfirmationToken(
+          emailConfirmationToken,
+          isEmailAdressConfirmed,
+          _id,
+        );
+        return {
+          message: 'Email resent succefully, now check your inbox mail and confirm your email adress'
+        }
       } catch (error) {
         Logger.error(error.message);
-        throw new UnauthorizedException('Confirmation email not send', error.message);
+        throw new UnauthorizedException(
+          'Confirmation email not send',
+          error.message,
+        );
       }
     }
-
+    return
   }
 
   mailTransport() {
@@ -60,6 +73,5 @@ export class MailService {
     });
     return transporter;
   }
-
 
 }

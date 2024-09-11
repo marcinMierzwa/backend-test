@@ -9,11 +9,13 @@ export class RefreshToken extends Document {
     @Prop({ required: true })
     refreshToken: string;
   
-    @Prop({ required: true, type: mongoose.Types.ObjectId })
+    @Prop({ type: mongoose.Types.ObjectId })
     userId: mongoose.Types.ObjectId;
-  
+
     @Prop({ required: true })
     expiryDate: Date;
+
+
   }
   
   export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

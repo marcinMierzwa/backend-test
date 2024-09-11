@@ -1,10 +1,14 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
+import { ConfirmationEmailToken } from 'src/schemas/confirmatoin-email-tokem';
 import { RefreshToken } from 'src/schemas/refresh-token.schema';
 import { User } from 'src/schemas/user.schema';
 
@@ -14,6 +18,8 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(RefreshToken.name)
     private refreshTokenModel: Model<RefreshToken>,
+    @InjectModel(ConfirmationEmailToken.name) private confirmationEmailTokenModel: Model<ConfirmationEmailToken>,
+    private readonly jwtService: JwtService,
   ) {}
 
   // #register
@@ -26,7 +32,7 @@ export class UserService {
   }
 
   // #save user in data base
-  async saveUser({ email, hashedPassword}) {
+  async saveUser({ email, hashedPassword }) {
     return await this.userModel.create({
       email,
       password: hashedPassword,
@@ -40,51 +46,102 @@ export class UserService {
 
   async findValidatedUser(email) {
     return await this.userModel.findOne({ email });
-    
-    // return {
-    //   email: user.email,
-    //   password: user.password,
-    //   id: user._id,
-    //   isEmailAdressConfirmed: user.isEmailAdressConfirmed
-    // };
   }
 
   // #store refreshToken in data base
-  async storeRefreshToken(expiryDate: Date, refreshToken: string, userId: ObjectId ) {
-    await this.refreshTokenModel.updateOne({userId},{ $set: {expiryDate, refreshToken}}, {upsert:true});
+  async storeRefreshToken(
+    expiryDate: Date,
+    refreshToken: string,
+    userId: ObjectId,
+  ) {
+    await this.refreshTokenModel.updateOne(
+      { userId },
+      { $set: { expiryDate, refreshToken } },
+      { upsert: true },
+    );
   }
 
-  // #get user from data base 
+  // #get user from data base
   async getUser(userId) {
-    const user = await this.userModel.findOne({_id: userId});
+    const user = await this.userModel.findOne({ _id: userId });
     return {
       id: user._id,
       email: user.email,
-      isEmailAdressConfirmed: user.isEmailAdressConfirmed
-    }
+      isEmailAdressConfirmed: user.isEmailAdressConfirmed,
+    };
   }
 
   // #get user from data base to confirm email
-  async getUserToConfirmEmail(email:string) {
-    return await this.userModel.findOne({email});
+  async getUserToConfirmEmail(email: string) {
+    return await this.userModel.findOne({ email });
   }
 
   async updateConfimationMailAdress(_id) {
-   const user = await this.userModel.findByIdAndUpdate({_id}, {isEmailAdressConfirmed: true});
-   return {
-    // _id: user._id,
-    // email: user.email,
-    // isEmailAdressConfirmed: user.isEmailAdressConfirmed,
-    message: 'Thank you for confirmation your email adrress, now you can get access to your account and login'
-}
+    await this.userModel.findByIdAndUpdate(
+      { _id },
+      { isEmailAdressConfirmed: true },
+    );
+    await this.confirmationEmailTokenModel.findOneAndUpdate(
+      { userId: _id },
+      { isEmailAdressConfirmed: true },
+    );
 
+    return {
+      message:
+        'Thank you for confirmation your email adrress, now you can get access to your account and login',
+    };
   }
-  async deleteNotConfirmedUser(userId) {
-     await this.userModel.deleteOne({userId});
-     return {
-      message: 'Confirmation adress email time had expired, Please create a new account'
-     }
+  async storeEmailConfirmationToken(confirmationEmailToken: string, isEmailAdressConfirmed:boolean, userId) {
+    const expiryDate = new Date();
+    expiryDate.setDate(
+      expiryDate.getDate() + 30,
+    );
+
+    await this.confirmationEmailTokenModel.updateOne(
+      { userId },
+      { $set: { confirmationEmailToken, isEmailAdressConfirmed, expiryDate } },
+      { upsert: true },
+    );
   }
 
+
+  async confirmEmailConfirmation(token: string) {
+
+    try {
+      const uncodedPayload = await this.jwtService.verifyAsync(token);
+      const userId = uncodedPayload._id;
+      const user = await this.confirmationEmailTokenModel.findOne({ userId });
+      await this.updateConfimationMailAdress(user.userId);
+      } catch (err) {
+        Logger.error(err.message);
+        if(err.message === "jwt expired") {
+          await this.deleteUser(token);
+          throw new UnauthorizedException(
+            'Email confirmation token has expired',
+            err.message,)
+          }
+      }
+  }
+  async deleteUser(confirmationEmailToken: string) {
+    const user = await this.confirmationEmailTokenModel.findOne({confirmationEmailToken});
+    const isEmailAdressConfirmed = user.isEmailAdressConfirmed;
+    const _id = user.userId;
+    if(isEmailAdressConfirmed === false) {
+      try {
+        await this.userModel.findByIdAndDelete({_id})
+      } catch (error) {
+        throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
+      }
+      try {
+        await this.confirmationEmailTokenModel.findOneAndDelete({confirmationEmailToken})
+      } catch (error) {
+        throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
+      }
+    }
+    return {
+      message: 'account delated'
+    }
+    
+  }
 
 }

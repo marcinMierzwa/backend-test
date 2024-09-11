@@ -10,7 +10,7 @@ import { MailService } from 'src/mail/mail.service';
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService,
-    private jwt: JwtService,
+    private jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
 
@@ -31,13 +31,11 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await this.userService.saveUser({ email, hashedPassword });
       
-      const emailConfirmationToken = await this.mailService.confirmEmailAdress(user.email);
+      await this.mailService.confirmEmailAdress(user.email);
 
       return {
         message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
-        email: user.email,
-        id: user._id,
-        emailConfirmationToken: emailConfirmationToken
+        email
       }
     }
   
@@ -71,11 +69,10 @@ async validateCredentials(email, password) {
       throw new BadRequestException('invalid credentials');
     }
     if(user.isEmailAdressConfirmed === false) {
-      // this.mailService.confirmEmailAdress(user.email);
       throw new BadRequestException({
-        "statusCode": 401,
-        "error": "Bad Request",
-        "message": ["Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email"]
+        statusCode: 401,
+        error: "Bad Request",
+        message: "Sorry! Your Email adress is not confirm, please check your email inbox (also span folder) and verify your email"
       });
     }
 
@@ -86,8 +83,8 @@ async validateCredentials(email, password) {
 
 // #generate tokens
 async generateTokens(userId) {
-    const accessToken = await this.jwt.signAsync({userId}, {expiresIn: '20s'});
-    const refreshToken = await this.jwt.signAsync({userId});
+    const accessToken = await this.jwtService.signAsync({userId}, {expiresIn: '20s'});
+    const refreshToken = await this.jwtService.signAsync({userId});
 
     await this.storeRefreshToken(refreshToken, userId)
     return {
@@ -99,9 +96,9 @@ async generateTokens(userId) {
 
 // #refresh access token
 async refreshAccessToken(refreshToken: string) {
-  const payload = await this.jwt.verifyAsync(refreshToken);
+  const payload = await this.jwtService.verifyAsync(refreshToken);
   const userId = payload.userId
-  const accessToken = await this.jwt.signAsync({userId}, {expiresIn: '20s'});
+  const accessToken = await this.jwtService.signAsync({userId}, {expiresIn: '20s'});
   return {
     accessToken: accessToken
   }
@@ -113,5 +110,8 @@ async storeRefreshToken(refreshToken: string, payload: ObjectId) {
   expiryDate.setDate(expiryDate.getDate() + 7);
   await this.userService.storeRefreshToken(expiryDate, refreshToken, payload);
 }
+
+
+
 
 }

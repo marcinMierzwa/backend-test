@@ -16,7 +16,7 @@ export class AuthController {
   async register(
     @Body() registerRequestBody: RegisterDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<Partial<User>> {
+  ){
     res.status(200);
     return await this.authService.register(registerRequestBody);
     
@@ -39,9 +39,6 @@ export class AuthController {
 
     return {
       accessToken: user.accessToken,
-      // refreshToken: user.refreshToken,
-      // userId: user.userId,
-      // isEmailAdressConfirmed: user.isEmailAdressConfirmed,
       message: 'Successful login',
     };
   }

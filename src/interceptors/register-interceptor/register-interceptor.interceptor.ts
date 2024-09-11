@@ -22,13 +22,12 @@ const emailConfirmationToken = request.query.token;
 if(!emailConfirmationToken) {
   throw new UnauthorizedException('Invalid token');
 }
-const payload = this.jwtService.verify(emailConfirmationToken);
 try {
+  const payload = this.jwtService.verify(emailConfirmationToken);
   response.status(302).redirect(`http://localhost:4200/login`)
   this.userService.updateConfimationMailAdress(payload._id);
 }
 catch(err) {
-  this.userService.deleteNotConfirmedUser(payload._id);
   Logger.error(err.message);
   throw new UnauthorizedException('Email confirmation token has expired', err.message);
 }
