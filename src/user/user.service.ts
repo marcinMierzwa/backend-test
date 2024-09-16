@@ -144,4 +144,18 @@ export class UserService {
     
   }
 
+  async forgotPassword(email: string) {
+    const user = await this.userModel.findOne({email});
+    if(user) {
+      console.log(user);
+      
+    }
+
+
+    return {
+      message: "If this email exists, you will recive an email"
+    }
+
+  }
+
 }

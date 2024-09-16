@@ -111,7 +111,9 @@ async storeRefreshToken(refreshToken: string, payload: ObjectId) {
   await this.userService.storeRefreshToken(expiryDate, refreshToken, payload);
 }
 
-
+async forgotPassword(email: string) {
+   return await this.userService.forgotPassword(email)
+}
 
 
 }

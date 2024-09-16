@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Res, Req, UnauthorizedException, Redirect } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  Req,
+  UnauthorizedException,
+  Redirect,
+} from '@nestjs/common';
 import { RegisterDto } from 'src/dtos/register-dto';
 import { User } from 'src/schemas/user.schema';
 import { AuthService } from './auth.service';
@@ -6,6 +14,7 @@ import { LoginDto } from 'src/dtos/login-dto';
 import { LoginResponse } from 'src/models/login-response-model';
 import { Response } from 'express';
 import { Request } from 'express';
+import { ForgotPasswordDto } from 'src/dtos/forgot-password-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,10 +25,9 @@ export class AuthController {
   async register(
     @Body() registerRequestBody: RegisterDto,
     @Res({ passthrough: true }) res: Response,
-  ){
+  ) {
     res.status(200);
     return await this.authService.register(registerRequestBody);
-    
   }
 
   // #login
@@ -30,7 +38,6 @@ export class AuthController {
   ): Promise<LoginResponse> {
     res.status(200);
     const user = await this.authService.Login(loginRequestBody);
-    
 
     res.cookie('refreshToken', user.refreshToken, {
       httpOnly: true,
@@ -44,14 +51,12 @@ export class AuthController {
   }
   // #logout
   @Post('logout')
-  async logOut(
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logOut(@Res({ passthrough: true }) res: Response) {
     res.status(200);
     res.clearCookie('refreshToken');
     return {
-      message: `succesfull logout`
-    }
+      message: `succesfull logout`,
+    };
   }
 
   // #refresh
@@ -64,13 +69,18 @@ export class AuthController {
     try {
       const refreshToken = req.cookies['refreshToken'];
 
-      const accessToken = await this.authService.refreshAccessToken(refreshToken);
+      const accessToken =
+        await this.authService.refreshAccessToken(refreshToken);
 
-      return accessToken
-           
+      return accessToken;
+    } catch (err) {
+      throw new UnauthorizedException();
     }
-    catch (err) {
-      throw new UnauthorizedException()
-    }
-}
+  }
+
+  // #forgotPassword
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(forgotPasswordDto.email)
+  }
 }
