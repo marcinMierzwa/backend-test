@@ -4,6 +4,7 @@ import { UserService } from 'src/user/user.service';
 import * as nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
 import { ConfigService } from '@nestjs/config';
+import { TransportOptions } from 'src/models/transport-options';
 
 @Injectable()
 export class MailService {
@@ -24,7 +25,6 @@ export class MailService {
     const confirmationEmailUrl = `http://localhost:3000/mail/${emailConfirmationToken}`;
 
     if (user && isEmailAdressConfirmed === false) {
-      const transport = this.mailTransport();
 
       const options: Mail.Options = {
         from: this.configService.get<string>('DEFAULT_MAIL_FROM'),
@@ -41,7 +41,7 @@ export class MailService {
       };
 
       try {
-        await transport.sendMail(options);
+        await this.mailTransport().sendMail(options);
         this.userService.storeEmailConfirmationToken(
           emailConfirmationToken,
           isEmailAdressConfirmed,
@@ -74,4 +74,42 @@ export class MailService {
     return transporter;
   }
 
+
+
+  async sendForgotPasswordEmail(options: TransportOptions) {
+    try {
+      await this.mailTransport().sendMail(this.optionsTransport(options));
+    } catch (error) {
+      Logger.error(error.message);
+      throw new UnauthorizedException(
+        'email not send',
+        error.message,
+      );
+    }
+
+  }
+
+  optionsTransport(options: TransportOptions) {
+    const {email, subject, html} = options;
+    const transportOptions: Mail.Options = {
+      from: this.configService.get<string>('DEFAULT_MAIL_FROM'),
+      to: email,
+      subject: subject,
+      html: html,
+    };
+    return transportOptions
+
+  }
+
 }
+
+
+// html: `<p>Welcome <strong>${email}</strong></p>
+    
+// <br>
+// <p>click the link below to confirm your email</p>
+// <a
+// href="${confirmationEmailUrl}"
+// >
+// ${confirmationEmailUrl}</a>`,
+

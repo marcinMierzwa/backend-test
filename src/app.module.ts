@@ -7,6 +7,7 @@ import config from './config/config';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from './user/user.module';
 import { MailModule } from './mail/mail.module';
+import { ResetModule } from './reset/reset.module';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { MailModule } from './mail/mail.module';
       }),
       inject: [ConfigService]
     }), 
-    AuthModule, ProductsModule, UserModule, MailModule],
+    AuthModule, ProductsModule, UserModule, MailModule, ResetModule],
   controllers: [],
   providers: [],
 })

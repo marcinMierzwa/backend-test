@@ -78,9 +78,4 @@ export class AuthController {
     }
   }
 
-  // #forgotPassword
-  @Post('forgot-password')
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return await this.authService.forgotPassword(forgotPasswordDto.email)
-  }
 }
