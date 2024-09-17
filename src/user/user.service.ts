@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { ConfirmationEmailToken } from 'src/schemas/confirmatoin-email-tokem';
 import { RefreshToken } from 'src/schemas/refresh-token.schema';
+import { ResetToken } from 'src/schemas/reset-token';
 import { User } from 'src/schemas/user.schema';
 
 @Injectable()
@@ -19,6 +20,9 @@ export class UserService {
     @InjectModel(RefreshToken.name)
     private refreshTokenModel: Model<RefreshToken>,
     @InjectModel(ConfirmationEmailToken.name) private confirmationEmailTokenModel: Model<ConfirmationEmailToken>,
+    @InjectModel(ResetToken.name)
+    private resetTokenModel: Model<ResetToken>,
+
     private readonly jwtService: JwtService,
   ) {}
 
@@ -147,5 +151,13 @@ export class UserService {
   async findUserForgotPassword(email: string) {
   return await this.userModel.findOne({email});
 }
+
+ async saveResetToken(resetToken, expiryDate, userId) {
+  await this.resetTokenModel.create({
+    resetToken,
+    expiryDate,
+    userId
+  });
+ }
 
 }

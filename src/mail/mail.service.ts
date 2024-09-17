@@ -76,7 +76,8 @@ export class MailService {
 
 
 
-  async sendForgotPasswordEmail(options: TransportOptions) {
+  async sendResetEmail(options: TransportOptions) {
+
     try {
       await this.mailTransport().sendMail(this.optionsTransport(options));
     } catch (error) {

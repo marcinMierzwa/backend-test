@@ -15,8 +15,11 @@ export class User extends Document {
     @Prop({required: true })
     password: string;
 
-    @Prop()
-    isEmailAdressConfirmed: boolean
+    @Prop({required: true })
+    isEmailAdressConfirmed: boolean;
+
+    @Prop({ required: true, type: mongoose.Types.ObjectId })
+    _id: mongoose.Types.ObjectId
 
   }
   
