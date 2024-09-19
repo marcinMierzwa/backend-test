@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { nanoid } from 'nanoid';
+import { ResetPasswordDto } from 'src/dtos/reset-password-dto';
 import { MailService } from 'src/mail/mail.service';
 import { ResetToken } from 'src/schemas/reset-token';
 import { UserService } from 'src/user/user.service';
@@ -15,7 +16,7 @@ export class ResetService {
     const user = await this.userService.findUserForgotPassword(email);
     const resetToken = nanoid();
     const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 1);
+    expiryDate.setSeconds(expiryDate.getSeconds() + 10);
     if (user) {
       await this.userService.saveResetToken(resetToken, expiryDate, user._id);
       const resetUrl = `http://localhost:4200/reset-password?token=${resetToken}`;
@@ -35,5 +36,19 @@ export class ResetService {
     return {
       message: 'If this email exists, you will recive an email',
     };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const {newPassword, resetToken} = resetPasswordDto;
+    const resetTokenModel = await this.userService.findResetTokenModel(resetToken);
+    if(!resetTokenModel || (resetTokenModel.expiryDate < new Date() )) {
+
+        throw new BadRequestException('Invalid link')
+        
+    }
+    return {
+        message: 'password changed succesfully'
+    }
+    
   }
 }

@@ -160,4 +160,10 @@ export class UserService {
   });
  }
 
+ async findResetTokenModel(resetToken: string) {
+  return await this.resetTokenModel.findOne({
+    resetToken
+  });
+ }
+
 }
