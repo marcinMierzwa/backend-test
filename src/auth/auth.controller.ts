@@ -5,7 +5,6 @@ import {
   Res,
   Req,
   UnauthorizedException,
-  Redirect,
 } from '@nestjs/common';
 import { RegisterDto } from 'src/dtos/register-dto';
 import { AuthService } from './auth.service';

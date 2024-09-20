@@ -6,14 +6,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { RefreshToken, RefreshTokenSchema } from 'src/schemas/refresh-token.schema';
 import { UserModule } from 'src/user/user.module';
-import { MailModule } from 'src/mail/mail.module';
 import { ConfirmationEmailToken, ConfirmationEmailTokenSchema } from 'src/schemas/confirmatoin-email-tokem';
 import { ResetToken, ResetTokenSchema } from 'src/schemas/reset-token';
 import { ConfirmModule } from 'src/confirm/confirm.module';
 
 @Module({
   imports: [
-    UserModule, MailModule, ConfirmModule,
+    UserModule, ConfirmModule,
     MongooseModule.forFeature([
       {
         name: User.name,

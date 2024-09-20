@@ -1,24 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { MailService } from 'src/mail/mail.service';
 import { TransportOptions } from 'src/models/transport-options';
+import { ConfirmationEmailToken } from 'src/schemas/confirmatoin-email-tokem';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ConfirmService {
-    constructor(private mailService: MailService) {}
+    constructor(private mailService: MailService,
+        private userService: UserService,
+    ) {}
 
 
 
 
 //send confirmation email
-    async saveConfirmationEmailModel(email: string, _id: mongoose.Types.ObjectId) {
+    async createConfirmationEmailModel(email: string, userId: mongoose.Types.ObjectId) {
        
         const emailConfirmationToken = nanoid(16);
         const expiryDate = new Date();
         expiryDate.setMonth(expiryDate.getMonth() + 1);
+        const confirmationEmailTokenModel = {
+            userId,
+            expiryDate,
+            confirmationEmailToken: emailConfirmationToken,
+            email
+        }
 
+        await this.userService.saveConfirmationEmailModel(confirmationEmailTokenModel);
 
+        
 
   
 

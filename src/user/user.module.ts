@@ -27,7 +27,7 @@ import { ResetToken, ResetTokenSchema } from 'src/schemas/reset-token';
         schema: ResetTokenSchema
       },
 
-    ]),
+    ]), 
   ],
 
   controllers: [UserController],

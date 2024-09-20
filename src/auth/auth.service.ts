@@ -31,10 +31,9 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const user = await this.userService.saveUser({ email, hashedPassword });
-      console.log(user);
       
       // save confirmation email model in data base
-      // await this.confirmService.saveConfirmationEmailModel((user.email, user._id);
+      await this.confirmService.createConfirmationEmailModel(user.email, user._id);
       // // send data to send confirmtion email adress
       // await this.confirmService.sendUserToConfirmEmail(user.email, user._id );
 
