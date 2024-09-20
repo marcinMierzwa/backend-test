@@ -72,6 +72,52 @@ export class UserService {
     };
   }
 
+
+  // #confirmation email 
+  async saveConfirmationEmailModel(confirmationEmailTokenModel) {
+    await this.confirmationEmailTokenModel.create(confirmationEmailTokenModel);
+  }
+
+
+
+  // #forgot password 
+  async findUserForgotPassword(email: string) {
+  return await this.userModel.findOne({email});
+}
+
+
+// #reset password
+ async saveResetToken(resetToken: string, expiryDate: Date, userId: mongoose.Types.ObjectId) {
+  await this.resetTokenModel.create({
+    resetToken,
+    expiryDate,
+    userId
+  });
+ }
+
+ async findResetTokenModel(resetToken: string) {
+  return await this.resetTokenModel.findOneAndDelete({
+    resetToken
+  });
+ }
+
+ async findUserResetPassword(userId: mongoose.Types.ObjectId, newPassword:string) {
+  const user = await this.userModel.findById({_id: userId})
+  if(!user) {
+    throw new InternalServerErrorException('user not found');
+  }
+  user.password = await bcrypt.hash(newPassword, 12);
+  await user.save();
+  return {
+    message: 'password has changed successfully'
+  }
+ }
+
+}
+
+
+
+
   // async storeEmailConfirmationToken(confirmationEmailToken: string, isEmailAdressConfirmed:boolean, userId: mongoose.Types.ObjectId) {
   //   const expiryDate = new Date();
   //   expiryDate.setDate(
@@ -126,43 +172,3 @@ export class UserService {
   //   }
     
   // }
-
-  // #confirmation email 
-  async saveConfirmationEmailModel(confirmationEmailTokenModel) {
-    await this.confirmationEmailTokenModel.create(confirmationEmailTokenModel);
-  }
-
-
-
-  // #forgot password 
-  async findUserForgotPassword(email: string) {
-  return await this.userModel.findOne({email});
-}
-
- async saveResetToken(resetToken: string, expiryDate: Date, userId: mongoose.Types.ObjectId) {
-  await this.resetTokenModel.create({
-    resetToken,
-    expiryDate,
-    userId
-  });
- }
-
- async findResetTokenModel(resetToken: string) {
-  return await this.resetTokenModel.findOneAndDelete({
-    resetToken
-  });
- }
-
- async findUserResetPassword(userId: mongoose.Types.ObjectId, newPassword:string) {
-  const user = await this.userModel.findById({_id: userId})
-  if(!user) {
-    throw new InternalServerErrorException('user not found');
-  }
-  user.password = await bcrypt.hash(newPassword, 12);
-  await user.save();
-  return {
-    message: 'password has changed successfully'
-  }
- }
-
-}

@@ -38,17 +38,16 @@ export class MailService {
     async sendEmailConfirmation(options: TransportOptions) {
     try {
       await this.mailTransport().sendMail(this.optionsTransport(options));
-    } catch (error) {
+      return {
+        message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`
+      };
+      } catch (error) {
       Logger.error(error.message);
       throw new UnauthorizedException(
         'Confirmation email not send',
         error.message,
       );
     }
-    return {
-      message:
-        'Email resent succefully, now check your inbox mail and confirm your email adress',
-    };
   }
 
 
