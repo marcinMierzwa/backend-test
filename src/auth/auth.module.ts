@@ -9,10 +9,11 @@ import { UserModule } from 'src/user/user.module';
 import { MailModule } from 'src/mail/mail.module';
 import { ConfirmationEmailToken, ConfirmationEmailTokenSchema } from 'src/schemas/confirmatoin-email-tokem';
 import { ResetToken, ResetTokenSchema } from 'src/schemas/reset-token';
+import { ConfirmModule } from 'src/confirm/confirm.module';
 
 @Module({
   imports: [
-    UserModule, MailModule,
+    UserModule, MailModule, ConfirmModule,
     MongooseModule.forFeature([
       {
         name: User.name,

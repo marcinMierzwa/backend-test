@@ -4,14 +4,14 @@ import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/dtos/login-dto';
 import { JwtService } from '@nestjs/jwt';
-import { ObjectId } from 'mongoose';
-import { MailService } from 'src/mail/mail.service';
+import mongoose from 'mongoose';
+import { ConfirmService } from 'src/confirm/confirm.service';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService,
     private jwtService: JwtService,
-    private readonly mailService: MailService,
+    private readonly confirmService: ConfirmService,
   ) {}
 
   // #register
@@ -29,14 +29,15 @@ export class AuthService {
       throw new BadRequestException('Sorry! Email adress is already in use, try to choose antoher one');
     }
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await this.userService.saveUser({ email, hashedPassword });
-      
-      await this.mailService.confirmEmailAdress(user.email);
 
-      return {
-        message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
-        email
-      }
+      const user = await this.userService.saveUser({ email, hashedPassword });
+      console.log(user);
+      
+      // save confirmation email model in data base
+      // await this.confirmService.saveConfirmationEmailModel((user.email, user._id);
+      // // send data to send confirmtion email adress
+      // await this.confirmService.sendUserToConfirmEmail(user.email, user._id );
+
     }
   
 
@@ -105,7 +106,7 @@ async refreshAccessToken(refreshToken: string) {
 }
 
 // #store refresh token in dataBase
-async storeRefreshToken(refreshToken: string, payload: ObjectId) {
+async storeRefreshToken(refreshToken: string, payload: mongoose.Types.ObjectId) {
   const expiryDate = new Date();
   expiryDate.setDate(expiryDate.getDate() + 7);
   await this.userService.storeRefreshToken(expiryDate, refreshToken, payload);

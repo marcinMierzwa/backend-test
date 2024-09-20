@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import mongoose from 'mongoose';
 import { nanoid } from 'nanoid';
 import { ResetPasswordDto } from 'src/dtos/reset-password-dto';
 import { MailService } from 'src/mail/mail.service';
-import { ResetToken } from 'src/schemas/reset-token';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -16,9 +16,9 @@ export class ResetService {
     const user = await this.userService.findUserForgotPassword(email);
     const resetToken = nanoid();
     const expiryDate = new Date();
-    expiryDate.setSeconds(expiryDate.getSeconds() + 10);
+    expiryDate.setHours(expiryDate.getHours() + 10);
     if (user) {
-      await this.userService.saveResetToken(resetToken, expiryDate, user._id);
+      await this.userService.saveResetToken(resetToken, expiryDate, user._id );
       const resetUrl = `http://localhost:4200/reset-password?token=${resetToken}`;
       const options = {
         email: user.email,
@@ -32,7 +32,6 @@ export class ResetService {
       };
       await this.mailService.sendResetEmail(options);
     }
-
     return {
       message: 'If this email exists, you will recive an email',
     };
@@ -41,14 +40,14 @@ export class ResetService {
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const {newPassword, resetToken} = resetPasswordDto;
     const resetTokenModel = await this.userService.findResetTokenModel(resetToken);
-    if(!resetTokenModel || (resetTokenModel.expiryDate < new Date() )) {
+    const userId = resetTokenModel.userId;
 
+    if(!resetTokenModel || (resetTokenModel.expiryDate < new Date() )) {
         throw new BadRequestException('Invalid link')
-        
     }
-    return {
-        message: 'password changed succesfully'
-    }
+
+     return await this.userService.findUserResetPassword(userId, newPassword)
+
     
   }
 }

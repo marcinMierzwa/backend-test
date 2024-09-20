@@ -8,13 +8,11 @@ import {
   Redirect,
 } from '@nestjs/common';
 import { RegisterDto } from 'src/dtos/register-dto';
-import { User } from 'src/schemas/user.schema';
 import { AuthService } from './auth.service';
 import { LoginDto } from 'src/dtos/login-dto';
 import { LoginResponse } from 'src/models/login-response-model';
 import { Response } from 'express';
 import { Request } from 'express';
-import { ForgotPasswordDto } from 'src/dtos/forgot-password-dto';
 
 @Controller('auth')
 export class AuthController {

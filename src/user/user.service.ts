@@ -1,17 +1,18 @@
 import {
-  BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { ConfirmationEmailToken } from 'src/schemas/confirmatoin-email-tokem';
 import { RefreshToken } from 'src/schemas/refresh-token.schema';
 import { ResetToken } from 'src/schemas/reset-token';
 import { User } from 'src/schemas/user.schema';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class UserService {
@@ -35,7 +36,7 @@ export class UserService {
     });
   }
 
-  // #save user in data base
+  // #save registration user in data base
   async saveUser({ email, hashedPassword }) {
     return await this.userModel.create({
       email,
@@ -48,7 +49,7 @@ export class UserService {
 
   // #find validated user in data base with email and validate email
 
-  async findValidatedUser(email) {
+  async findValidatedUser(email: string) {
     return await this.userModel.findOne({ email });
   }
 
@@ -56,7 +57,7 @@ export class UserService {
   async storeRefreshToken(
     expiryDate: Date,
     refreshToken: string,
-    userId: ObjectId,
+    userId: mongoose.Types.ObjectId,
   ) {
     await this.refreshTokenModel.updateOne(
       { userId },
@@ -66,7 +67,7 @@ export class UserService {
   }
 
   // #get user from data base
-  async getUser(userId) {
+  async getUser(userId: mongoose.Types.ObjectId) {
     const user = await this.userModel.findOne({ _id: userId });
     return {
       id: user._id,
@@ -80,7 +81,7 @@ export class UserService {
     return await this.userModel.findOne({ email });
   }
 
-  async updateConfimationMailAdress(_id) {
+  async updateConfimationMailAdress(_id: mongoose.Types.ObjectId) {
     await this.userModel.findByIdAndUpdate(
       { _id },
       { isEmailAdressConfirmed: true },
@@ -95,7 +96,7 @@ export class UserService {
         'Thank you for confirmation your email adrress, now you can get access to your account and login',
     };
   }
-  async storeEmailConfirmationToken(confirmationEmailToken: string, isEmailAdressConfirmed:boolean, userId) {
+  async storeEmailConfirmationToken(confirmationEmailToken: string, isEmailAdressConfirmed:boolean, userId: mongoose.Types.ObjectId) {
     const expiryDate = new Date();
     expiryDate.setDate(
       expiryDate.getDate() + 30,
@@ -112,47 +113,49 @@ export class UserService {
   async confirmEmailConfirmation(token: string) {
 
     try {
-      const uncodedPayload = await this.jwtService.verifyAsync(token);
-      const userId = uncodedPayload._id;
-      const user = await this.confirmationEmailTokenModel.findOne({ userId });
-      await this.updateConfimationMailAdress(user.userId);
+      const uncodedPayload = await this.jwtService.verify(token);
+      const data = await this.confirmationEmailTokenModel.findOne({userId: uncodedPayload._id});
+      console.log(data);
+      
+      // await this.updateConfimationMailAdress(user.userId);
+
       } catch (err) {
         Logger.error(err.message);
         if(err.message === "jwt expired") {
-          await this.deleteUser(token);
+          // await this.deleteUser(token);
           throw new UnauthorizedException(
             'Email confirmation token has expired',
             err.message,)
           }
       }
   }
-  async deleteUser(confirmationEmailToken: string) {
-    const user = await this.confirmationEmailTokenModel.findOne({confirmationEmailToken});
-    const isEmailAdressConfirmed = user.isEmailAdressConfirmed;
-    const _id = user.userId;
-    if(isEmailAdressConfirmed === false) {
-      try {
-        await this.userModel.findByIdAndDelete({_id})
-      } catch (error) {
-        throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
-      }
-      try {
-        await this.confirmationEmailTokenModel.findOneAndDelete({confirmationEmailToken})
-      } catch (error) {
-        throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
-      }
-    }
-    return {
-      message: 'account delated'
-    }
+  // async deleteUser(confirmationEmailToken: string) {
+  //   const user = await this.confirmationEmailTokenModel.findOne({confirmationEmailToken});
+  //   const isEmailAdressConfirmed = user.isEmailAdressConfirmed;
+  //   const _id = user.userId;
+  //   if(isEmailAdressConfirmed === false) {
+  //     try {
+  //       await this.userModel.findByIdAndDelete({_id})
+  //     } catch (error) {
+  //       throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
+  //     }
+  //     try {
+  //       await this.confirmationEmailTokenModel.findOneAndDelete({confirmationEmailToken})
+  //     } catch (error) {
+  //       throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
+  //     }
+  //   }
+  //   return {
+  //     message: 'account delated'
+  //   }
     
-  }
+  // }
 
   async findUserForgotPassword(email: string) {
   return await this.userModel.findOne({email});
 }
 
- async saveResetToken(resetToken, expiryDate, userId) {
+ async saveResetToken(resetToken: string, expiryDate: Date, userId) {
   await this.resetTokenModel.create({
     resetToken,
     expiryDate,
@@ -161,9 +164,21 @@ export class UserService {
  }
 
  async findResetTokenModel(resetToken: string) {
-  return await this.resetTokenModel.findOne({
+  return await this.resetTokenModel.findOneAndDelete({
     resetToken
   });
+ }
+
+ async findUserResetPassword(userId: mongoose.Types.ObjectId, newPassword:string) {
+  const user = await this.userModel.findById({_id: userId})
+  if(!user) {
+    throw new InternalServerErrorException('user not found');
+  }
+  user.password = await bcrypt.hash(newPassword, 12);
+  await user.save();
+  return {
+    message: 'password has changed successfully'
+  }
  }
 
 }
