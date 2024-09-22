@@ -6,8 +6,6 @@ import mongoose, { Document } from 'mongoose';
   timestamps: true,
 })
 export class ConfirmationEmailToken extends Document {
-  @Prop({ required: true, type: mongoose.Types.ObjectId })
-  userId: mongoose.Types.ObjectId;
 
   @Prop({ required: true })
   expiryDate: Date;

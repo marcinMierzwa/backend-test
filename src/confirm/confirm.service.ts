@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import mongoose, { ObjectId } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { MailService } from 'src/mail/mail.service';
@@ -14,15 +14,11 @@ export class ConfirmService {
   ) {}
 
   //recive confirmation email model data from registration
-  async createConfirmationEmailModel(
-    email: string,
-    userId: mongoose.Types.ObjectId,
-  ) {
+  async createConfirmationEmailModel(email: string) {
     const emailConfirmationToken = nanoid(16);
     const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + 1);
+    expiryDate.setDate(expiryDate.getDate() + 30);
     const confirmationEmailTokenModel = {
-      userId,
       expiryDate,
       confirmationEmailToken: emailConfirmationToken,
       email,
@@ -32,22 +28,20 @@ export class ConfirmService {
       confirmationEmailTokenModel,
     );
     // send conftirmation email transport options to mailService
-    await this.createEmailConfirmationTransport(emailConfirmationToken, email);
+    await this.createEmailConfirmationTransport(email, emailConfirmationToken);
 
     return {
-        message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
-        emailConfirmationToken: emailConfirmationToken,
-        email: email
-      };
-        
-    
+      message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
+      emailConfirmationToken: emailConfirmationToken,
+      email: email,
+    };
   }
 
   // create email confirmation sending transport options
 
   async createEmailConfirmationTransport(
-    emailConfirmationToken: string,
     email: string,
+    emailConfirmationToken: string,
   ) {
     const resetUrl = `http://localhost:3000/confirm?token=${emailConfirmationToken}`;
     const options = {
@@ -55,7 +49,7 @@ export class ConfirmService {
       subject: 'Email adress confirmation',
       html: `<p>Welcome <strong>${email}</strong></p>
                 <br>
-                <p>click the link below to confirm your email adress</p>
+                <p>click the link below to confirm your email adress, the link will be active for 30 days after this time the account will be deleted</p>
                 <a
                 href="${resetUrl}">
                 Confirm your email</a>`,
@@ -64,59 +58,34 @@ export class ConfirmService {
     return await this.mailService.sendEmailConfirmation(options);
   }
 
-  // async confirmEmailAdress(token: string) {}
+  // resend conftirmation email
+  async resendEmailConfirmationEmail(
+    email: string,
+    emailConfirmationToken: string,
+  ) {
+    await this.createEmailConfirmationTransport(email, emailConfirmationToken);
+    return {
+      message: 'Verification email resent, check your email inbox',
+    };
+  }
 
-  //        return {
-  //     message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
-  //     email
-  //   }
-
-  //     if (user && isEmailAdressConfirmed === false) {
-
-  //     const user = await this.userService.getUserToConfirmEmail(user_email);
-  //     const { email, _id, isEmailAdressConfirmed } = user;
-  //     const payload = { email, _id };
-  //     const emailConfirmationToken = this.jwtService.sign(payload, {
-  //       expiresIn: '30 days',
-  //     });
-
-  //     const confirmationEmailUrl = `http://localhost:3000/mail/${emailConfirmationToken}`;
-
-  //     if (user && isEmailAdressConfirmed === false) {
-
-  //       const options: Mail.Options = {
-  //         from: this.configService.get<string>('DEFAULT_MAIL_FROM'),
-  //         to: email,
-  //         subject: 'email verification',
-  //         html: `<p>Welcome <strong>${email}</strong></p>
-
-  //               <br>
-  //               <p>click the link below to confirm your email</p>
-  //               <a
-  //               href="${confirmationEmailUrl}"
-  //               >
-  //               ${confirmationEmailUrl}</a>`,
-  //       };
-
-  //       try {
-  //         await this.mailTransport().sendMail(options);
-  //         this.userService.storeEmailConfirmationToken(
-  //           emailConfirmationToken,
-  //           isEmailAdressConfirmed,
-  //           _id,
-  //         );
-  //         return {
-  //           message: 'Email resent succefully, now check your inbox mail and confirm your email adress'
-  //         }
-  //       } catch (error) {
-  //         Logger.error(error.message);
-  //         throw new UnauthorizedException(
-  //           'Confirmation email not send',
-  //           error.message,
-  //         );
-  //       }
-  //     }
-  //     return
-  //   }
-  // }
+  // validate and change is email adress is confirmed
+  async confirmEmailAdress(token: string) {
+    const emailConfirmationToken = await this.userService.validateToken(token);
+    const { expiryDate, confirmationEmailToken, email } =
+      emailConfirmationToken;
+    const user = await this.userService.findUserConfirmationEmail(email);
+    const { isEmailAdressConfirmed, _id } = user;
+    if (expiryDate < new Date() && isEmailAdressConfirmed === false) {
+      await this.userService.deleteUser(email);
+    } else {
+      await this.userService.updateIsEmailAdressConfirmed(email);
+      await this.userService.deleteEmailConfirmationModel(email);
+      return {
+        message:
+          'Thank you, your email address has been confirmed and you can log in to your account',
+      };
+    }
+    return
+  }
 }

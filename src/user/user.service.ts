@@ -73,14 +73,42 @@ export class UserService {
   }
 
 
-  // #confirmation email 
+  // #### CONFIRMATION EMAIL 
   async saveConfirmationEmailModel(confirmationEmailTokenModel) {
     await this.confirmationEmailTokenModel.create(confirmationEmailTokenModel);
   }
 
+  // find user to verify is email confirmed
+  async findUserConfirmationEmail(email: string) {
+    return await this.userModel.findOne({email});
+  }
+
+  // find confiramation email token model to verify token expiry date
+  async validateToken(confirmationEmailToken: string) {
+    return await this.confirmationEmailTokenModel.findOne({confirmationEmailToken});
+  }
+
+  // delete user when token exipry
+  async deleteUser(email: string) {
+    await this.userModel.findOneAndDelete({email});
+    return {
+      message: 'user deleted'
+    }
+  }
+
+  // update is adress email is confirm 
+  async updateIsEmailAdressConfirmed(email: string) {
+    await this.userModel.findOneAndUpdate({email, isEmailAdressConfirmed: true});
+  }
+
+  // delete email confirtmation token model after confitmation email adress
+  async deleteEmailConfirmationModel(email: string) {
+    await this.confirmationEmailTokenModel.findOneAndDelete({email});
+  }
 
 
-  // #forgot password 
+
+  // #### FORGOT PASSWORD  
   async findUserForgotPassword(email: string) {
   return await this.userModel.findOne({email});
 }

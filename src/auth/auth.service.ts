@@ -33,7 +33,7 @@ export class AuthService {
       const user = await this.userService.saveUser({ email, hashedPassword });
       
       // save confirmation email model in data base
-      return await this.confirmService.createConfirmationEmailModel(user.email, user._id);
+      return await this.confirmService.createConfirmationEmailModel(user.email);
 
     }
   

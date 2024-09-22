@@ -35,7 +35,8 @@ export class MailService {
     return transportOptions;
   }
     // sending confirmation email
-    async sendEmailConfirmation(options: TransportOptions) {
+    async sendEmailConfirmation(options: TransportOptions) {   
+         
     try {
       await this.mailTransport().sendMail(this.optionsTransport(options));
       } catch (error) {
