@@ -114,8 +114,8 @@ export class UserService {
 }
 
 
-// #reset password
- async saveResetToken(resetToken: string, expiryDate: Date, userId: mongoose.Types.ObjectId) {
+  // #### RESET PASSWORD  
+  async saveResetToken(resetToken: string, expiryDate: Date, userId: mongoose.Types.ObjectId) {
   await this.resetTokenModel.create({
     resetToken,
     expiryDate,
@@ -141,62 +141,23 @@ export class UserService {
   }
  }
 
+   // #### CHANGE PASSWORD  
+   // find user in data base
+   async findUserChangePassword(userId: mongoose.Types.ObjectId) {
+    return await this.userModel.findById(userId);
+   }
+
+   // save new password
+   async saveNewPassword(userId: mongoose.Types.ObjectId, newHashedPassword: string) {
+    await this.userModel.findOneAndUpdate({userId, password: newHashedPassword});
+    return {
+      message: 'password has been changed successfully'
+    }
+   }
+
+
 }
 
 
 
 
-  // async storeEmailConfirmationToken(confirmationEmailToken: string, isEmailAdressConfirmed:boolean, userId: mongoose.Types.ObjectId) {
-  //   const expiryDate = new Date();
-  //   expiryDate.setDate(
-  //     expiryDate.getDate() + 30,
-  //   );
-
-  //   await this.confirmationEmailTokenModel.updateOne(
-  //     { userId },
-  //     { $set: { confirmationEmailToken, isEmailAdressConfirmed, expiryDate } },
-  //     { upsert: true },
-  //   );
-  // }
-
-
-  // async confirmEmailConfirmation(token: string) {
-
-  //   try {
-  //     const uncodedPayload = await this.jwtService.verify(token);
-  //     const data = await this.confirmationEmailTokenModel.findOne({userId: uncodedPayload._id});
-  //     console.log(data);
-      
-  //     // await this.updateConfimationMailAdress(user.userId);
-
-  //     } catch (err) {
-  //       Logger.error(err.message);
-  //       if(err.message === "jwt expired") {
-  //         // await this.deleteUser(token);
-  //         throw new UnauthorizedException(
-  //           'Email confirmation token has expired',
-  //           err.message,)
-  //         }
-  //     }
-  // }
-  // async deleteUser(confirmationEmailToken: string) {
-  //   const user = await this.confirmationEmailTokenModel.findOne({confirmationEmailToken});
-  //   const isEmailAdressConfirmed = user.isEmailAdressConfirmed;
-  //   const _id = user.userId;
-  //   if(isEmailAdressConfirmed === false) {
-  //     try {
-  //       await this.userModel.findByIdAndDelete({_id})
-  //     } catch (error) {
-  //       throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
-  //     }
-  //     try {
-  //       await this.confirmationEmailTokenModel.findOneAndDelete({confirmationEmailToken})
-  //     } catch (error) {
-  //       throw new UnauthorizedException('cannot delete user account. Account email adress confirmed');
-  //     }
-  //   }
-  //   return {
-  //     message: 'account delated'
-  //   }
-    
-  // }
