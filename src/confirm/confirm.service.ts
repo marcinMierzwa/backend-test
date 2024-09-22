@@ -32,7 +32,15 @@ export class ConfirmService {
       confirmationEmailTokenModel,
     );
     // send conftirmation email transport options to mailService
-    return await this.createEmailConfirmationTransport(emailConfirmationToken, email);
+    await this.createEmailConfirmationTransport(emailConfirmationToken, email);
+
+    return {
+        message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`,
+        emailConfirmationToken: emailConfirmationToken,
+        email: email
+      };
+        
+    
   }
 
   // create email confirmation sending transport options

@@ -38,9 +38,6 @@ export class MailService {
     async sendEmailConfirmation(options: TransportOptions) {
     try {
       await this.mailTransport().sendMail(this.optionsTransport(options));
-      return {
-        message: `Success!. It's great that you joined us, now check your email inbox and confirm your email adress`
-      };
       } catch (error) {
       Logger.error(error.message);
       throw new UnauthorizedException(

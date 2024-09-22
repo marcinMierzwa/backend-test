@@ -34,8 +34,6 @@ export class AuthService {
       
       // save confirmation email model in data base
       return await this.confirmService.createConfirmationEmailModel(user.email, user._id);
-      // // send data to send confirmtion email adress
-      // await this.confirmService.sendUserToConfirmEmail(user.email, user._id );
 
     }
   
