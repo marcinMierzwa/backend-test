@@ -9,10 +9,14 @@ import { UserModule } from 'src/user/user.module';
 import { ConfirmationEmailToken, ConfirmationEmailTokenSchema } from 'src/schemas/confirmatoin-email-tokem';
 import { ResetToken, ResetTokenSchema } from 'src/schemas/reset-token';
 import { ConfirmModule } from 'src/confirm/confirm.module';
+import { ConfigModule } from '@nestjs/config';
+import googleAuthConfig from 'src/config/google.auth.config';
 
 @Module({
   imports: [
-    UserModule, ConfirmModule,
+    UserModule, 
+    ConfirmModule,
+    ConfigModule.forFeature(googleAuthConfig),
     MongooseModule.forFeature([
       {
         name: User.name,
