@@ -11,6 +11,7 @@ import { ResetToken, ResetTokenSchema } from 'src/schemas/reset-token';
 import { ConfirmModule } from 'src/confirm/confirm.module';
 import { ConfigModule } from '@nestjs/config';
 import googleAuthConfig from 'src/config/google.auth.config';
+import { GoogleStrategy } from './google.strategy';
 
 @Module({
   imports: [
@@ -38,6 +39,6 @@ import googleAuthConfig from 'src/config/google.auth.config';
     ])
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService],
+  providers: [AuthService, UserService, GoogleStrategy],
 })
 export class AuthModule {}

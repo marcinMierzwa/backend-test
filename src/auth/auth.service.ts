@@ -14,10 +14,9 @@ export class AuthService {
     private readonly confirmService: ConfirmService,
   ) {}
 
-  // #register
-  async register(registerRequestBody: RegisterDto) {
+  // #REGISTER
+  async register(email:string, password?:string, confirmPassword?:string) {
     
-    const { email, password, confirmPassword } = registerRequestBody;
 
     if (password !== confirmPassword) {
       throw new BadRequestException('Fields password and confirm password must be the same');
@@ -30,16 +29,16 @@ export class AuthService {
     }
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const user = await this.userService.saveUser({ email, hashedPassword });
+      const user = await this.userService.saveUser(email, hashedPassword);
       
       // save confirmation email model in data base
       return await this.confirmService.createConfirmationEmailModel(user.email);
 
     }
-  
 
 
-// #login
+
+// #LOGIN
 async Login(loginRequestBody: LoginDto) {
     const {email, password} = loginRequestBody;
     const user = await this.validateCredentials(email, password);
@@ -106,6 +105,11 @@ async storeRefreshToken(refreshToken: string, payload: mongoose.Types.ObjectId) 
   const expiryDate = new Date();
   expiryDate.setDate(expiryDate.getDate() + 7);
   await this.userService.storeRefreshToken(expiryDate, refreshToken, payload);
+}
+
+//#GOOGLE LOGIN
+async validateGoogleUser(email: string, googleId: string, avatar: string) {
+  const user = await this.userService.isEmailInUse(email)
 }
 
 

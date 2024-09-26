@@ -5,6 +5,8 @@ import {
   Res,
   Req,
   UnauthorizedException,
+  Get,
+  UseGuards,
 } from '@nestjs/common';
 import { RegisterDto } from 'src/dtos/register-dto';
 import { AuthService } from './auth.service';
@@ -12,6 +14,7 @@ import { LoginDto } from 'src/dtos/login-dto';
 import { LoginResponse } from 'src/models/login-response-model';
 import { Response } from 'express';
 import { Request } from 'express';
+import { GoogleAuthGuard } from 'src/quards/google-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,10 +27,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     res.status(200);
-    return await this.authService.register(registerRequestBody);
+    return await this.authService.register(
+      registerRequestBody.email,
+      registerRequestBody.password,
+      registerRequestBody.confirmPassword
+    );
   }
 
-  // #login
+  // #login local
   @Post('login')
   async Login(
     @Body() loginRequestBody: LoginDto,
@@ -46,6 +53,25 @@ export class AuthController {
       message: 'Successful login',
     };
   }
+  // #LOGIN GOOGLE
+  //login google
+  @Get('google/login')
+  @UseGuards(GoogleAuthGuard)
+  googleLogin() {
+  }
+
+    //callback google
+    @Get('google/callback')
+    @UseGuards(GoogleAuthGuard)
+    googleCallback() {
+      return {
+        msg: 'works'
+      }
+    }
+  
+
+
+
   // #logout
   @Post('logout')
   async logOut(@Res({ passthrough: true }) res: Response) {

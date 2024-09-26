@@ -25,6 +25,10 @@ export class User extends Document {
     @Prop({required: true })
     isEmailAdressConfirmed: boolean;
 
+    @Prop({default:""})
+    avatarUrl: string;
+
+
     // @Prop({type:mongoose.Types.ObjectId })
     _id: mongoose.Types.ObjectId
 

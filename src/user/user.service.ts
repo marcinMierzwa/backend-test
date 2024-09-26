@@ -30,7 +30,7 @@ export class UserService {
   }
 
   // #save registration user in data base
-  async saveUser({ email, hashedPassword }) {
+  async saveUser( email: string, hashedPassword?: string, googleId?: string,) {
     return await this.userModel.create({
       email,
       password: hashedPassword,
