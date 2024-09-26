@@ -48,7 +48,6 @@ async Login(loginRequestBody: LoginDto) {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         userId: tokens.userId,
-        isEmailAdressConfirmed: user.isEmailAdressConfirmed,
     }
 
     

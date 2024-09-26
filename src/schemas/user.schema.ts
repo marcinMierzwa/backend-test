@@ -13,8 +13,14 @@ export class User extends Document {
     @Prop({required: true, unique: true})
     email: string;
   
-    @Prop({required: true })
+    @Prop()
     password: string;
+
+    @Prop()
+    googleId: string;
+
+    @Prop({default: 'local'})
+    authMethod: string // local or google
 
     @Prop({required: true })
     isEmailAdressConfirmed: boolean;
