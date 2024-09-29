@@ -15,7 +15,7 @@ export class AuthService {
   ) {}
 
   // #REGISTER
-  async register(email:string, password?:string, confirmPassword?:string) {
+  async register(email:string, password:string, confirmPassword:string) {
     
 
     if (password !== confirmPassword) {
@@ -28,8 +28,19 @@ export class AuthService {
       throw new BadRequestException('Sorry! Email adress is already in use, try to choose antoher one');
     }
       const hashedPassword = await bcrypt.hash(password, 10);
+      const googleId = '';
+      const authMethod = 'local';
+      const isEmailAdressConfirmed = false;
+      const avatarUrl = '';
 
-      const user = await this.userService.saveUser(email, hashedPassword);
+      const user = await this.userService.saveUser(
+      email,
+      hashedPassword,
+      googleId,
+      authMethod,
+      isEmailAdressConfirmed,
+      avatarUrl
+    );
       
       // save confirmation email model in data base
       return await this.confirmService.createConfirmationEmailModel(user.email);
@@ -108,8 +119,24 @@ async storeRefreshToken(refreshToken: string, payload: mongoose.Types.ObjectId) 
 }
 
 //#GOOGLE LOGIN
-async validateGoogleUser(email: string, googleId: string, avatar: string) {
+async validateGoogleUser(email: string, googleId: string, avatarUrl: string) {
+  const hashedPassword = '';
+  const authMethod = 'google';
+  const isEmailAdressConfirmed = true;
   const user = await this.userService.isEmailInUse(email)
+  if(!user) {
+    await this.userService.saveUser(
+      email,
+      hashedPassword,
+      googleId,
+      authMethod,
+      isEmailAdressConfirmed,
+      avatarUrl,
+     );
+  }
+  //  else if () {
+    
+  // }
 }
 
 

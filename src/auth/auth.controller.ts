@@ -64,9 +64,7 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
     googleCallback() {
-      return {
-        msg: 'works'
-      }
+      
     }
   
 

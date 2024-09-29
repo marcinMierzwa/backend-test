@@ -9,6 +9,8 @@ import mongoose, { Document } from 'mongoose';
 }) 
 export class User extends Document {
 
+   
+    _id: mongoose.Types.ObjectId  // @Prop({type:mongoose.Types.ObjectId })
   
     @Prop({required: true, unique: true})
     email: string;
@@ -29,8 +31,6 @@ export class User extends Document {
     avatarUrl: string;
 
 
-    // @Prop({type:mongoose.Types.ObjectId })
-    _id: mongoose.Types.ObjectId
 
   }
   

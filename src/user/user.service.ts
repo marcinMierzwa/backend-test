@@ -30,15 +30,25 @@ export class UserService {
   }
 
   // #save registration user in data base
-  async saveUser( email: string, hashedPassword?: string, googleId?: string,) {
+  async saveUser(
+    email: string,
+    hashedPassword: string,
+    googleId: string, 
+    authMethod: string,
+    isEmailAdressConfirmed: boolean,
+    avatarUrl: string
+   ) {
     return await this.userModel.create({
       email,
       password: hashedPassword,
-      isEmailAdressConfirmed: false,
+      googleId,
+      authMethod,
+      isEmailAdressConfirmed,
+      avatarUrl,
     });
   }
 
-  // #login
+  // #LOGIN
 
   // #find validated user in data base with email and validate email
 
@@ -46,7 +56,7 @@ export class UserService {
     return await this.userModel.findOne({ email });
   }
 
-  // #refresh token
+  // #REFRESH TOKEN
 
   // #store refreshToken in data base
   async storeRefreshToken(

@@ -4,6 +4,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-google-oauth20";
 import { VerifiedCallback } from "passport-jwt";
 import googleAuthConfig from "src/config/google.auth.config";
+import { AuthService } from "./auth.service";
 
 
 
@@ -11,7 +12,8 @@ import googleAuthConfig from "src/config/google.auth.config";
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
     constructor(
-        @Inject(googleAuthConfig.KEY) private googleConfiguration: ConfigType<typeof googleAuthConfig>
+        @Inject(googleAuthConfig.KEY) private googleConfiguration: ConfigType<typeof googleAuthConfig>,
+        private authService: AuthService,
     ) {
         super({
             clientID: googleConfiguration.clientId,
@@ -25,6 +27,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
         const email = profile.emails[0].value;
         const googleId = profile.id;
         const avatar = profile.photos[0].value;
-        
+        const user = await this.authService.validateGoogleUser(
+            email, googleId, avatar
+        );
+        done(null, user)
     }
 }
