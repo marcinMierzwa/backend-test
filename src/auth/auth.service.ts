@@ -123,7 +123,9 @@ async validateGoogleUser(email: string, googleId: string, avatarUrl: string) {
   const hashedPassword = '';
   const authMethod = 'google';
   const isEmailAdressConfirmed = true;
-  const user = await this.userService.isEmailInUse(email)
+  const user = await this.userService.isEmailInUse(email);
+  console.log(user);
+  
   if(!user) {
     await this.userService.saveUser(
       email,
