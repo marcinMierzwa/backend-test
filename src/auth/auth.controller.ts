@@ -63,8 +63,14 @@ export class AuthController {
     //callback google
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
-    googleCallback() {
-      
+    async googleCallback(@Req() req, @Res() res) {
+      const response = await this.authService.generateTokens(req.user._id);
+      res.cookie('refreshToken', response.refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      }); // 1 week
+      res.redirect(`http://localhost:4200/home`);
+
     }
   
 

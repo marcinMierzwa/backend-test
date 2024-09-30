@@ -56,6 +56,21 @@ export class UserService {
     return await this.userModel.findOne({ email });
   }
 
+  // #find and update user in data base via email
+  async updateUser(
+    email:string,
+    googleId: string,
+    authMethod: string,
+    isEmailAdressConfirmed: boolean,
+    avatarUrl: string) {
+    await this.userModel.updateOne({email}, {
+      googleId: googleId,
+      authMethod: authMethod,
+      isEmailAdressConfirmed: isEmailAdressConfirmed,
+      avatarUrl: avatarUrl
+    })
+  }
+
   // #REFRESH TOKEN
 
   // #store refreshToken in data base
@@ -65,7 +80,7 @@ export class UserService {
     userId: mongoose.Types.ObjectId,
   ) {
     await this.refreshTokenModel.updateOne(
-      { userId },
+      { userId: userId },
       { $set: { expiryDate, refreshToken } },
       { upsert: true },
     );
